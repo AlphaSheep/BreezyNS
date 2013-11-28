@@ -68,6 +68,12 @@ class BoundingBox():
         bottomLeft  = Point(self.center.x-self.halfWidth, self.center.y-self.halfHeight)
         
         return PointList(topLeft, topRight, bottomRight, bottomLeft, topLeft)
+    
+    def getPolygon(self):
+        p = Polygon()
+        p.createFromPointList(self.getPointList())
+        return p
+        
 
 
 class PointList():
@@ -343,6 +349,19 @@ class LineList():
             pointsList.addPoint(line.endPoint)
         return pointsList
     
+    
+    def createFromPointList(self, pointList):
+        self.lines = []
+        if pointList.length()<2:
+            return
+        
+        points = pointList.points
+        for i in range(1,len(points)):
+            self.lines.append(StraightLine(points[i-1], points[i]))
+        
+        return self
+            
+        
         
 class Polygon(LineList):
     

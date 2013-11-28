@@ -58,14 +58,18 @@ class Element():
         
         # If we've found a neighbour before, then we can save time by querying them directly to see if it's changed.
         # If we don't have a neighbour yet, we'll ask our parent if they can find our neighbour for us.
-        if self.neighbour[direction]:
-            self.neighbour[direction] = self.neighbour[direction].getElementAtPoint(neighbourLocation)
-            return self.neighbour[direction]
+        if self.neighbours[direction]:
+            self.neighbours[direction] = self.neighbours[direction].getElementAtPoint(neighbourLocation)
+            return self.neighbours[direction]
         else:
-            self.neighbour[direction] = self.parent.getElementAtPoint(neighbourLocation)
-            return self.neighbour[direction]
+            self.neighbours[direction] = self.parent.getElementAtPoint(neighbourLocation)
+            return self.neighbours[direction]
         
-
+    
+    def refineNeighbours(self):
+        for dir in self.neighbour.keys:
+            pass
+        
     
     def getElementAtPoint(self, point):
         '''
@@ -88,7 +92,7 @@ class Element():
     
     def getPointList(self):
         '''
-        If its a leaf, this returns points for drawing a closed loop around the cell. Otherwise, it 
+        If its a leaf, this returns the points defining the corners of the cell. Otherwise, it 
         returns a list of points for all of its children.
         '''
         if self.isLeaf:
@@ -98,7 +102,20 @@ class Element():
             for child in self.children:
                 pointList += child.getPointList()
             return pointList
-            
+    
+    
+    def getPolygons(self):
+        '''
+        Returns a list of Polygon objects defining each leaf element.
+        '''
+        if self.isLeaf:
+            return [self.boundingBox.getPolygon()]
+        else:
+            polyList = []
+            for child in self.children:
+                polyList += child.getPolygons()
+            return polyList
+        
             
     def split(self):
         if self.isLeaf:
@@ -113,12 +130,30 @@ class Element():
                 self.children.append(Element(topRight, newCellSize, self.maxCellSize, self.minCellSize, self))
                 self.children.append(Element(bottomRight, newCellSize, self.maxCellSize, self.minCellSize, self))
                 self.children.append(Element(bottomLeft, newCellSize, self.maxCellSize, self.minCellSize, self))
+                self.fixNeighbourCellSizes()
             else:
                 print("Cell is already too small")
         else:
             print("Something went wrong with splitting a cell")
     
     
+    def fixNeighbourCellSizes(self):
+        '''
+        Checks the cell size of all neighbouring elements. If any of them are larger than twice the current cell size, 
+        then they are refined until they meet this criteria.
+        '''
+        
+        directions = ['up','down','left','right']
+        
+        for dir in directions:
+            n = self.getNeighbour(dir)
+            if n: # There won't be any neighbour on the edge.
+                print ("Checking",n, "since it's a neighbour of",self)
+                while n.cellSize > 1.9999*self.cellSize: # 
+                    print ("    ",n,"is too large.")
+                    n.split()
+                    n = self.getNeighbour(dir)
+                n.cellSize 
     
         
     def __repr__(self):
@@ -157,6 +192,7 @@ class Mesh():
         
         self.boundingBox = BoundingBox(center, width, height)
     
+    
     def getElementAtPoint(self, point):
         '''
         Returns a leaf Element which contains the point.
@@ -185,6 +221,13 @@ class Mesh():
             raise Exception("Fatal Error: Parent mesh attempted to query an element for a point it did not contain.")
     
     
-    def removeShape(self, polygon):
-        pass
+    def getPolygons(self):
+        '''
+        Returns a list of Polygon objects defining each leaf element.
+        '''
+        polyList = []
+        for e in self.elements:
+            polyList += e.getPolygons()
+        return polyList
         
+
