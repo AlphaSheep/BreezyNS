@@ -24,7 +24,9 @@ Created on 04 Sep 2013
 
 
 def floatRange(start , stop= None, step = 1.0):
-    ''' Generator object to mimic behaviour of range, but with floats. '''
+    ''' 
+    Generator object to mimic behaviour of range, but with floats. 
+    '''
     if stop == None:
         startPoint = 0.0
         stopPoint = start
@@ -37,6 +39,18 @@ def floatRange(start , stop= None, step = 1.0):
         yield startPoint + current*step
         current += 1
         value = startPoint + current*step
+
+
+
+def removeDuplicates(l):
+    '''
+    Removes duplicates from a list
+    '''
+    newList = []
+    for element in l:
+        if not element in newList:
+            newList.append(element)
+    return newList 
 
 
 def saveFile(filename,contents, path = ''):
