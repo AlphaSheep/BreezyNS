@@ -71,11 +71,17 @@ class BoundingBox():
         else:
             self.halfHeight = halfHeight
         
+        
     def containsPoint(self, point):
         if abs(point.x - self.center.x) <= self.halfWidth:
             if abs(point.y - self.center.y) <= self.halfHeight:
                 return True
         return False
+    
+    
+    def containsLine(self, line):
+        return self.containsPoint(line.startPoint) and self.containsPoint(line.endPoint)
+        
     
     def getPointList(self):
         topLeft     = Point(self.center.x-self.halfWidth, self.center.y+self.halfHeight)
@@ -90,7 +96,6 @@ class BoundingBox():
         p.createFromPointList(self.getPointList())
         return p
         
-
 
 class PointList():
     
@@ -351,7 +356,10 @@ class StraightLine():
     
     def length(self):
         return math.sqrt(self.startPoint.sqrDistTo(self.endPoint))
-    
+
+    def __repr__(self):
+        return "Straight line of length "+str(self.length())+" from "+str(self.startPoint)+" to "+str(self.endPoint)
+
                 
 class LineList():
     
@@ -386,7 +394,18 @@ class LineList():
             if line.length() > 0:
                 newLineList.append(line)
         return LineList(newLineList)
-            
+    
+    def removeShortLines(self, minLength):
+        newLineList = []
+        startPoint = self.lines[0].startPoint
+        for i in range(len(self.lines)):
+            endPoint = self.lines[i].endPoint
+            newLine = StraightLine(startPoint, endPoint)
+            if newLine.length() >= minLength:
+                newLineList.append(newLine)
+                startPoint = self.lines[i].startPoint
+        return LineList(newLineList)
+        
         
         
 class Polygon(LineList):

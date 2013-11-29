@@ -284,8 +284,12 @@ class Mesh():
                     element.split()                    
                 e = self.getElementAtPoint(thisPoint)
     
+    
     def refineAlongPolygon(self, polygon):
+        #counter = 0
         for line in polygon.lines:
+            #counter += 1
+            #print("    Resolving along",line)
             self.refineAlongLine(line)
                 
 
