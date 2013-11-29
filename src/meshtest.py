@@ -75,27 +75,25 @@ def testMeshRefinement():
     pylab.show()
 
 
-def refineAlongPolygon(self, polygon):
-    for line in polygon.lines:
-        nSteps = math.ceil(line.length()/self.minCellSize)
+
         
 
 
 def testPloygonTracer():
-    polygons = polygonsFromSVG('./inputgeometries/arbshape3.svg')
+    polygons = polygonsFromSVG('./inputgeometries/arbshape6.svg')
     polygon = polygons[0]
     print("Loaded geometry as polygon with",len(polygon.lines),"sides.")
     bottomLeft = Point(0, 300)
     mesh = Mesh(bottomLeft, 10, 10, 100, 1)
     print("Generated background mesh. Refining along geometry.")
     
-    
+    mesh.refineAlongPolygon(polygon)
     
     
     pylab.figure()
 
     plotMesh(mesh)
-    plotPolygonGroup(polygons)
+    plotPolygonGroup(polygons,'r-')
 
     pylab.axis('equal')
     pylab.show()

@@ -23,6 +23,7 @@ Created on 26 Nov 2013
 
 import math
 from pycfdmesh.geometry import Point, BoundingBox, PointList#, Polygon
+from pycfdalg.usefulstuff import removeDuplicates
 
 
 
@@ -147,11 +148,15 @@ class Element():
                 self.children.append(Element(bottomLeft, newCellSize, self.maxCellSize, self.minCellSize, self))
                 for c in self.children:
                     c.fixNeighbourCellSizes()
-            else:
-                print("Cell is already too small")
-        else:
-            print("Something went wrong with splitting a cell")
     
+    
+    def getNeighbours(self):
+        directions = ['up','down','left','right']
+        neighbours = []
+        for d in directions:
+            neighbours.append(self.getNeighbour(d))
+        return neighbours
+        
     
     def fixNeighbourCellSizes(self):
         '''
@@ -164,9 +169,9 @@ class Element():
         for d in directions:
             n = self.getNeighbour(d)
             if n: # There won't be any neighbour on the edge.
-                print ("Checking",n, "since it's a neighbour of",self)
+                #print ("Checking",n, "since it's a neighbour of",self)
                 while self.isLeaf and n.cellSize > 2*self.cellSize: 
-                    print ("    ",n,"is too large.")
+                    #print ("    ",n,"is too large.")
                     n.split()
                     n = self.getNeighbour(d)
                     
@@ -246,3 +251,43 @@ class Mesh():
         return polyList
         
 
+    def getElementsAroundPoint(self, point, distance=None):
+        '''
+        Returns a list of elements containing the element at point, and the four elements distance in each direction.
+        If distance is not specified, it defaults to minCellSize/2
+        '''
+
+        if not distance:
+            distance = self.minCellSize/2
+        
+        up     = self.getElementAtPoint(point + Point( 0, 1).scaledBy(distance))
+        down   = self.getElementAtPoint(point + Point( 0,-1).scaledBy(distance))
+        left   = self.getElementAtPoint(point + Point(-1, 0).scaledBy(distance))
+        right  = self.getElementAtPoint(point + Point( 1, 0).scaledBy(distance))
+        center = self.getElementAtPoint(point)
+        
+        return removeDuplicates([up, down, left, right, center])
+    
+    
+    def refineAlongLine(self, line):
+        # We calculate the number of steps needed to ensure that we don't miss any cells.
+        nSteps = math.ceil(line.length()/self.minCellSize)
+        if nSteps < 1:
+            print('Got a line of length',line.length())
+        # nSteps is the number of line segments. Number of points to check is nSteps + 1
+        for i in range(nSteps+1):
+            thisPoint = line.startPoint + (line.endPoint-line.startPoint).scaledBy(i/nSteps)
+            
+            e = self.getElementAtPoint(thisPoint)
+            while e.cellSize/2 > e.minCellSize:
+                for element in self.getElementsAroundPoint(thisPoint):
+                    element.split()                    
+                e = self.getElementAtPoint(thisPoint)
+    
+    def refineAlongPolygon(self, polygon):
+        for line in polygon.lines:
+            self.refineAlongLine(line)
+                
+
+    
+   
