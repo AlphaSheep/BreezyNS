@@ -379,6 +379,13 @@ class LineList():
             self.lines.append(StraightLine(points[i-1], points[i]))
         
         return self
+    
+    def removeZeroLengthLines(self):
+        newLineList = []
+        for line in self.lines:
+            if line.length() > 0:
+                newLineList.append(line)
+        return LineList(newLineList)
             
         
         
