@@ -1,7 +1,7 @@
 '''
 This file is a part of BreezyNS - a simple, general-purpose 2D airflow calculator.
 
-BreezyNS is copyright (c) 2013, Brendan Gray
+Copyright (c) 2013, Brendan Gray
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
