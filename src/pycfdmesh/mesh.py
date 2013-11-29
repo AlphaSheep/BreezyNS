@@ -146,7 +146,8 @@ class Element():
                 self.children.append(Element(topRight, newCellSize, self.maxCellSize, self.minCellSize, self))
                 self.children.append(Element(bottomRight, newCellSize, self.maxCellSize, self.minCellSize, self))
                 self.children.append(Element(bottomLeft, newCellSize, self.maxCellSize, self.minCellSize, self))
-                self.fixNeighbourCellSizes()
+                for c in self.children:
+                    c.fixNeighbourCellSizes()
             else:
                 print("Cell is already too small")
         else:
@@ -161,17 +162,16 @@ class Element():
         
         directions = ['up','down','left','right']
         
-        for dir in directions:
-            n = self.getNeighbour(dir)
+        for d in directions:
+            n = self.getNeighbour(d)
             if n: # There won't be any neighbour on the edge.
                 print ("Checking",n, "since it's a neighbour of",self)
-                while n.cellSize > 1.9999*self.cellSize: # 
+                while self.isLeaf and n.cellSize > 2*self.cellSize: 
                     print ("    ",n,"is too large.")
                     n.split()
-                    n = self.getNeighbour(dir)
-                n.cellSize 
-    
-        
+                    n = self.getNeighbour(d)
+                    
+                    
     def __repr__(self):
         return "Element at "+str(self.center)+" with size "+str(self.cellSize)
     

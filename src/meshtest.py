@@ -37,25 +37,28 @@ def plotMesh(mesh, style='k-'):
         points = poly.getDefiningPoints()
         pylab.plot(points.getXs(), points.getYs(),style)
     
+
     
-    
-def test():
+def testMeshRefinement():
     bottomLeft = Point(0,0)
     mesh = Mesh(bottomLeft, 10, 10, 100, 1)
     print("Mesh generated\n")
-    mesh.getElementAtPoint(Point(320,220)).split()
-    mesh.getElementAtPoint(Point(320,220)).split()
-    mesh.getElementAtPoint(Point(320,220)).split()
-    mesh.getElementAtPoint(Point(320,220)).split()
-    mesh.getElementAtPoint(Point(320,220)).split()
-    mesh.getElementAtPoint(Point(320,220)).split()
+    
+    refinePoint = Point(500,500)
+    
+    mesh.getElementAtPoint(refinePoint).split()
+    mesh.getElementAtPoint(refinePoint).split()
+    mesh.getElementAtPoint(refinePoint).split()
+    mesh.getElementAtPoint(refinePoint).split()
+    mesh.getElementAtPoint(refinePoint).split()
+    mesh.getElementAtPoint(refinePoint).split()
 
     
-    e = mesh.getElementAtPoint(Point(320,220))
-    up = e.getNeighbour('up')
-    down = e.getNeighbour('down')
-    left = e.getNeighbour('left')
-    right = e.getNeighbour('right')
+    e = mesh.getElementAtPoint(refinePoint)
+    #up = e.getNeighbour('up')
+    #down = e.getNeighbour('down')
+    #left = e.getNeighbour('left')
+    #right = e.getNeighbour('right')
 
     print("Plotting...\n")
     
@@ -70,8 +73,5 @@ def test():
     pylab.show()
     
     
-from pycfdmesh.svgloader import beziergonsFromSVG
 
-
-
-test()
+testMeshRefinement()
