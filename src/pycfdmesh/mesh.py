@@ -22,7 +22,7 @@ Created on 26 Nov 2013
 
 
 import math
-from pycfdmesh.geometry import Point, BoundingBox, PointList, Polygon
+from pycfdmesh.geometry import Point, BoundingBox, PointList#, Polygon
 
 
 
@@ -35,6 +35,9 @@ class Element():
     
     def __init__(self, center, cellSize, maxCellSize, minCellSize, parent = None):
         self.isLeaf = True
+        self.isSolid = False
+        self.isBoundary = False
+        self.Boundary = None
         
         self.parent = parent
         self.children = []
@@ -81,10 +84,6 @@ class Element():
             self.neighbours[direction] = self.parent.getElementAtPoint(neighbourLocation)
             return self.neighbours[direction]
         
-    
-    def refineNeighbours(self):
-        for dir in self.neighbour.keys:
-            pass
         
     
     def getElementAtPoint(self, point):
@@ -197,7 +196,7 @@ class Mesh():
         elements = []
         for i in range(horizontalCellCount):
             for j in range(verticalCellCount):
-                center = Point(maxCellSize/2 + i*maxCellSize, maxCellSize/2 + j*maxCellSize)
+                center = bottomLeft + Point(maxCellSize/2 + i*maxCellSize, maxCellSize/2 + j*maxCellSize)
                 elements.append(Element(center, maxCellSize, maxCellSize, minCellSize, self))
         self.elements = elements
         self.bottomLeft = bottomLeft

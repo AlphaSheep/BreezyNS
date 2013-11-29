@@ -31,8 +31,8 @@ The solution vector U may be stored as SolutionVector object,
 and the flux vectors Fx and Fy may be stored as FluxVector objects.  
 '''
 
+from pycfdalg.basicvector import Vector
 from pycfdsolver.stateequation import pressure
-from pycfdsolver.basicvector import Vector
 from pycfdsolver.shearstress import ShearTensor
         
     

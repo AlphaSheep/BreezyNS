@@ -35,11 +35,11 @@ def plotBezierGroup(blist):
     pylab.axis('equal')
     
 
-def plotPolygonGroup(polyList):
+def plotPolygonGroup(polyList, style='k-'):
     for p in polyList:
         points = p.getDefiningPoints()
-        pylab.plot(points.getXs(), points.getYs(),'ko-')
-        print(points.length())
+        pylab.plot(points.getXs(), points.getYs(), style)
+        #print(points.length())
     pylab.axis('equal')
         
 
@@ -58,6 +58,8 @@ def test2():
     pylab.show()
         
 
-
-
-test2()
+if __name__ == "__main__":
+    test2()
+    
+    
+    

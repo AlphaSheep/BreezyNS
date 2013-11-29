@@ -22,7 +22,7 @@ Created on 26 Nov 2013
 
 import math
 import copy
-from pycfdmesh.usefulstuff import floatRange
+from pycfdalg.usefulstuff import floatRange
 
 
 class Point():
@@ -348,8 +348,11 @@ class StraightLine():
     
     def getDefiningPoints(self):
         return PointList(self.startPoint, self.endPoint)
-
-        
+    
+    def length(self):
+        return math.sqrt(self.startPoint.sqrDistTo(self.endPoint))
+    
+                
 class LineList():
     
     def __init__(self, lineList=[]):

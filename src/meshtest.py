@@ -20,9 +20,11 @@ Created on 27 Nov 2013
 '''
 
 import pylab
+import math
+from geomtest import plotPolygonGroup
 from pycfdmesh.mesh import Mesh
 from pycfdmesh.geometry import Point
-# from pycfdmesh.svgloader import polygonsFromSVG
+from pycfdmesh.svgloader import polygonsFromSVG
 
 
 def plotPolygons(polygons, style='k-'):
@@ -71,7 +73,35 @@ def testMeshRefinement():
     plotMesh(e,'ro-')
     pylab.axis('equal')
     pylab.show()
+
+
+def refineAlongPolygon(self, polygon):
+    for line in polygon.lines:
+        nSteps = math.ceil(line.length()/self.minCellSize)
+        
+
+
+def testPloygonTracer():
+    polygons = polygonsFromSVG('./inputgeometries/arbshape3.svg')
+    polygon = polygons[0]
+    print("Loaded geometry as polygon with",len(polygon.lines),"sides.")
+    bottomLeft = Point(0, 300)
+    mesh = Mesh(bottomLeft, 10, 10, 100, 1)
+    print("Generated background mesh. Refining along geometry.")
+    
+    
+    
+    
+    pylab.figure()
+
+    plotMesh(mesh)
+    plotPolygonGroup(polygons)
+
+    pylab.axis('equal')
+    pylab.show()
     
     
 
-testMeshRefinement()
+if __name__ == "__main__":    
+    #testMeshRefinement()
+    testPloygonTracer()

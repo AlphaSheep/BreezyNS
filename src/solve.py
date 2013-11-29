@@ -19,9 +19,9 @@ Created on 26 Nov 2013
 
 '''
 
-from pycfdsolver.basicvector import Vector
+from pycfdalg.basicvector import Vector
 from pycfdsolver.navierstokes import SolutionVector, FluxVector
-from pycfdsolver.stateequation import pressure
+#from pycfdsolver.stateequation import pressure
 
 
 rho = 1.225
