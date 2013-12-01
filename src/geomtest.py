@@ -21,7 +21,8 @@ Created on 26 Nov 2013
 '''
 
 import pylab
-from pycfdmesh.svgloader import beziergonsFromSVG
+from pycfdmesh.svgloader import beziergonsFromSVG, polygonsFromSVG
+from pycfdmesh.geometry import Point
 
 
 
@@ -43,7 +44,7 @@ def plotPolygonGroup(polyList, style='k-'):
     pylab.axis('equal')
         
 
-def test2():
+def testLoadandPlot():
     blist = beziergonsFromSVG('./inputgeometries/arbshape6.svg')
     #pylab.figure('Original Image')
     #plotBezierGroup(blist)
@@ -56,10 +57,37 @@ def test2():
     plotPolygonGroup(polygonList)
     
     pylab.show()
+    
+    return polygonList[0]
         
 
+
+def testPolyPointCheck():
+    polygons = polygonsFromSVG('./inputgeometries/arbshape6.svg')
+    polygon = polygons[0].removeShortLines(0.5).toPolygon()
+    print ("Polygon loaded with",len(polygon.lines),"sides.")
+    
+    
+    plist = []
+    plist.append(Point(250,580))
+    plist.append(Point(305, 526))
+    plist.append(Point(190, 360))
+    plist.append(Point(25, 540))
+    plist.append(Point(110, 440))
+
+    pylab.figure('Polygon Image')
+    plotPolygonGroup([polygon])
+    
+    for p in plist:   
+        print (p, polygon.containsPoint(p))
+        pylab.plot(p.x,p.y,'ro')
+    
+    pylab.show()
+
+
+
 if __name__ == "__main__":
-    test2()
+    testPolyPointCheck()
     
     
     

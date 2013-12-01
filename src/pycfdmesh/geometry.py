@@ -70,6 +70,11 @@ class BoundingBox():
             self.halfHeight = halfWidth
         else:
             self.halfHeight = halfHeight
+        self.left = center.x - self.halfWidth
+        self.right = center.x + self.halfWidth
+        self.top = center.y + self.halfHeight
+        self.bottom = center.y + self.halfHeight
+         
         
         
     def containsPoint(self, point):
@@ -311,6 +316,7 @@ class CurveList():
             currentSize = newCurves.nCurves()
         return newCurves
     
+    
     def toLineList(self):
         lineList = []
         for c in self.curves:
@@ -346,6 +352,9 @@ class Beziergon(CurveList):
 
 
 class StraightLine():
+    '''
+    Represents a line segment between two points.
+    '''
     
     def __init__(self, startPoint, endPoint):
         self.startPoint = startPoint
@@ -356,6 +365,31 @@ class StraightLine():
     
     def length(self):
         return math.sqrt(self.startPoint.sqrDistTo(self.endPoint))
+    
+    def intersectsWith(self, other):
+        '''
+        Returns True if two line segments intersect between their start and end points, and False otherwise.
+        '''
+        m1 = (self.startPoint.y - self.endPoint.y)/(self.startPoint.x - self.endPoint.x)
+        m2 = (other.startPoint.y - other.endPoint.y)/(other.startPoint.x - other.endPoint.x)
+        c1 = self.startPoint.y - m1*self.startPoint.x
+        c2 = other.startPoint.y - m2*other.startPoint.x
+        
+        x = (c2-c1)/(m1-m2)
+        y = m1*x+c1
+        
+        if not x >= min(self.startPoint.x, self.endPoint.x) and x <= max(self.startPoint.x, self.endPoint.x):
+            return False
+        if not y >= min(self.startPoint.y, self.endPoint.y) and y <= max(self.startPoint.y, self.endPoint.y):
+            return False
+        if not x >= min(other.startPoint.x, other.endPoint.x) and x <= max(other.startPoint.x, other.endPoint.x):
+            return False
+        if not y >= min(other.startPoint.y, other.endPoint.y) and y <= max(other.startPoint.y, other.endPoint.y):
+            return False
+        
+        return True
+        
+        
 
     def __repr__(self):
         return "Straight line of length "+str(self.length())+" from "+str(self.startPoint)+" to "+str(self.endPoint)
@@ -406,11 +440,77 @@ class LineList():
                 startPoint = self.lines[i].startPoint
         return LineList(newLineList)
         
+    def toPolygon(self):
+        return Polygon(self.lines)
         
         
 class Polygon(LineList):
     
-    pass
+    def __init__(self, lineList=[]):
+        LineList.__init__(self, lineList)
+        self.calculateBoundingBox()
+    
+
+    def calculateBoundingBox(self):
+        '''
+        This forces the bounding box to be recalculated. If the polygon hasn't changed, rather use Polygon.getBoundingBox()
+        ''' 
+        xmin = self.lines[0].startPoint.x
+        xmax = self.lines[0].startPoint.x
+        ymin = self.lines[0].startPoint.y
+        ymax = self.lines[0].startPoint.y
+        for line in self.lines:
+            thisXmin = min(line.startPoint.x, line.endPoint.x)
+            thisXmax = max(line.startPoint.x, line.endPoint.x)
+            if thisXmin < xmin: xmin = thisXmin
+            elif thisXmax > xmax: xmax = thisXmax
+            thisYmin = min(line.startPoint.y, line.endPoint.y)
+            thisYmax = max(line.startPoint.y, line.endPoint.y)
+            if thisYmin < ymin: ymin = thisYmin
+            elif thisYmax > ymax: ymax = thisYmax
+        center = Point((xmin+xmax)/2, (ymin+ymax)/2)
+        halfWidth = (xmax-xmin)/2
+        halfHeight = (ymax-ymin)/2
+        self.boundingBox = BoundingBox(center, halfWidth, halfHeight)
+        return self.boundingBox
+    
+    
+    def getBoundingBox(self):
+        '''
+        Assumes that the polygon has not change since the bounding box was last calculated.
+        '''
+        return self.boundingBox
+    
+    
+    def containsPoint(self, point):
+        '''
+        Uses a simple ray casting algorithm to determine if a point lies inside a polygon. 
+        '''
+        self.getBoundingBox()
+        if not self.boundingBox.containsPoint(point):
+            return False
+        
+        rayStart = Point(self.boundingBox.left, point.y)
+        ray = StraightLine(rayStart, point)
+        
+        intersectionCount = 0
+        for line in self.lines:
+            #print ("    Testing point",point,"and line",line)
+            if ray.intersectsWith(line):
+                intersectionCount += 1
+                print ("        Intersection count", intersectionCount)
+        if intersectionCount % 2 == 0:
+            return True
+        else:
+            return False
+            
+        
+        
+        
+        
+        
+            
+                
     
     
             
