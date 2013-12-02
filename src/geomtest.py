@@ -22,7 +22,7 @@ Created on 26 Nov 2013
 
 import pylab
 from pycfdmesh.svgloader import beziergonsFromSVG, polygonsFromSVG
-from pycfdmesh.geometry import Point
+from pycfdmesh.geometry import Point, StraightLine
 
 
 
@@ -63,17 +63,17 @@ def testLoadandPlot():
 
 
 def testPolyPointCheck():
-    polygons = polygonsFromSVG('./inputgeometries/arbshape6.svg')
+    polygons = polygonsFromSVG('./inputgeometries/arbshape7.svg')
     polygon = polygons[0].removeShortLines(0.5).toPolygon()
     print ("Polygon loaded with",len(polygon.lines),"sides.")
     
     
     plist = []
-    plist.append(Point(250,580))
-    plist.append(Point(305, 526))
-    plist.append(Point(190, 360))
-    plist.append(Point(25, 540))
-    plist.append(Point(110, 440))
+    plist.append(Point(250,210)) # True
+    plist.append(Point(140, 150)) # False
+    plist.append(Point(280, 320)) # False 
+    plist.append(Point(95, 260)) # True
+    plist.append(Point(180, 60)) # False
 
     pylab.figure('Polygon Image')
     plotPolygonGroup([polygon])
@@ -85,8 +85,25 @@ def testPolyPointCheck():
     pylab.show()
 
 
+def boundingBoxCheck():
+    plist = []
+    plist.append(Point(250,580))
+    plist.append(Point(305, 526))
+    plist.append(Point(190, 360))
+    plist.append(Point(25, 540))
+    plist.append(Point(110, 440))
+    
+    line1 = StraightLine(plist[0],plist[2])
+    line2 = StraightLine(plist[1],plist[4])
+    
+    print(line1.getBoundingBox() , line2.getBoundingBox())
+    print(line1.getBoundingBox() + line2.getBoundingBox())
+    print( line1.intersectsWith(line2))
+    
+    
 
 if __name__ == "__main__":
+    #boundingBoxCheck()
     testPolyPointCheck()
     
     

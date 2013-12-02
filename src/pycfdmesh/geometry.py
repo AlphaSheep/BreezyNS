@@ -73,7 +73,7 @@ class BoundingBox():
         self.left = center.x - self.halfWidth
         self.right = center.x + self.halfWidth
         self.top = center.y + self.halfHeight
-        self.bottom = center.y + self.halfHeight
+        self.bottom = center.y - self.halfHeight
          
         
         
@@ -100,7 +100,35 @@ class BoundingBox():
         p = Polygon()
         p.createFromPointList(self.getPointList())
         return p
+    
+    def __add__(self, other):
+        '''
+        Returns the intersection between two bounding boxes, or None if the boxes don't intersect.
+        '''
+        # Check if a box is too high or too low
+        if self.bottom > other.top or self.top < other.bottom:
+            return None
+        # Check if a box is too far to the side
+        if self.left > other.right or self.right < other.left:
+            return None
         
+        newTop = min(self.top, other.top)
+        newBottom = max(self.bottom, other.bottom)
+        newLeft = max(self.left, other.left)
+        newRight = min(self.right, other.right)
+        
+        newCenter = Point((newLeft+newRight)/2, (newTop+newBottom)/2)
+        halfWidth = abs(newLeft-newRight)/2
+        halfHeight = abs(newTop-newBottom)/2
+        
+        return BoundingBox(newCenter, halfWidth, halfHeight)
+    
+    
+    def __repr__(self):
+        return "Bounding box x: ("+str(self.left)+"--"+str(self.right)+"), y: ("+str(self.bottom)+"--"+str(self.top)+")"
+    
+
+
 
 class PointList():
     
@@ -351,6 +379,7 @@ class Beziergon(CurveList):
         return Polygon(self.toLineList().lines)
 
 
+
 class StraightLine():
     '''
     Represents a line segment between two points.
@@ -370,26 +399,43 @@ class StraightLine():
         '''
         Returns True if two line segments intersect between their start and end points, and False otherwise.
         '''
+        intersectionRegion = self.getBoundingBox() + other.getBoundingBox()
+        if not intersectionRegion:
+            return False
+        
         m1 = (self.startPoint.y - self.endPoint.y)/(self.startPoint.x - self.endPoint.x)
         m2 = (other.startPoint.y - other.endPoint.y)/(other.startPoint.x - other.endPoint.x)
         c1 = self.startPoint.y - m1*self.startPoint.x
         c2 = other.startPoint.y - m2*other.startPoint.x
         
+        # Check degenerate case if lines are parallel
+        if m1 == m2:
+            return c1 == c2
+        
+        # Otherwise there is a single intersection point. 
         x = (c2-c1)/(m1-m2)
         y = m1*x+c1
         
-        if not x >= min(self.startPoint.x, self.endPoint.x) and x <= max(self.startPoint.x, self.endPoint.x):
-            return False
-        if not y >= min(self.startPoint.y, self.endPoint.y) and y <= max(self.startPoint.y, self.endPoint.y):
-            return False
-        if not x >= min(other.startPoint.x, other.endPoint.x) and x <= max(other.startPoint.x, other.endPoint.x):
-            return False
-        if not y >= min(other.startPoint.y, other.endPoint.y) and y <= max(other.startPoint.y, other.endPoint.y):
+        intersectionPoint = Point(x, y)
+        
+        # If the line segments intersect, then the intersection point must lie within the intersection region.
+        if intersectionRegion.containsPoint(intersectionPoint):
+            return True
+        else:
             return False
         
-        return True
         
+    def getBoundingBox(self):
+        top = max(self.startPoint.y, self.endPoint.y)
+        bottom = min(self.startPoint.y, self.endPoint.y)
+        left = min(self.startPoint.x, self.endPoint.x)
+        right = max(self.startPoint.x, self.endPoint.x)
         
+        center = Point((left+right)/2, (top+bottom)/2)
+        halfWidth = abs(left-right)/2
+        halfHeight = abs(top-bottom)/2
+        
+        return BoundingBox(center, halfWidth, halfHeight)
 
     def __repr__(self):
         return "Straight line of length "+str(self.length())+" from "+str(self.startPoint)+" to "+str(self.endPoint)
@@ -495,11 +541,11 @@ class Polygon(LineList):
         
         intersectionCount = 0
         for line in self.lines:
-            #print ("    Testing point",point,"and line",line)
+            # print ("    Testing point",point,"and line",line)
             if ray.intersectsWith(line):
                 intersectionCount += 1
                 print ("        Intersection count", intersectionCount)
-        if intersectionCount % 2 == 0:
+        if intersectionCount % 2 == 1:
             return True
         else:
             return False
