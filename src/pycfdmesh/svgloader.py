@@ -125,10 +125,10 @@ def beziergonsFromSVG(filename):
     return beziergonList
 
 
-def polygonsFromSVG(filename):
+def polygonsFromSVG(filename, minLineLength = 0):
     blist = beziergonsFromSVG(filename)
     polygonList = []
     for b in blist:
-        polygonList.append(b.approximateByPolygon().removeZeroLengthLines())
+        polygonList.append(b.approximateByPolygon().removeShortLines(minLineLength).toPolygon())
     return polygonList
 

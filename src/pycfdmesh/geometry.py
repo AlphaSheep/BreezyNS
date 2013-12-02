@@ -468,6 +468,7 @@ class LineList():
         
         return self
     
+    
     def removeZeroLengthLines(self):
         newLineList = []
         for line in self.lines:
@@ -475,15 +476,17 @@ class LineList():
                 newLineList.append(line)
         return LineList(newLineList)
     
+    
     def removeShortLines(self, minLength):
         newLineList = []
-        startPoint = self.lines[0].startPoint
+        currentStart = 0
         for i in range(len(self.lines)):
+            startPoint = self.lines[currentStart].startPoint
             endPoint = self.lines[i].endPoint
             newLine = StraightLine(startPoint, endPoint)
             if newLine.length() >= minLength:
                 newLineList.append(newLine)
-                startPoint = self.lines[i].startPoint
+                currentStart = i+1
         return LineList(newLineList)
         
     def toPolygon(self):
@@ -515,8 +518,8 @@ class Polygon(LineList):
             if thisYmin < ymin: ymin = thisYmin
             elif thisYmax > ymax: ymax = thisYmax
         center = Point((xmin+xmax)/2, (ymin+ymax)/2)
-        halfWidth = (xmax-xmin)/2
-        halfHeight = (ymax-ymin)/2
+        halfWidth = abs(xmax-xmin)/2
+        halfHeight = abs(ymax-ymin)/2
         self.boundingBox = BoundingBox(center, halfWidth, halfHeight)
         return self.boundingBox
     
@@ -541,7 +544,7 @@ class Polygon(LineList):
         
         intersectionCount = 0
         for line in self.lines:
-            # print ("    Testing point",point,"and line",line)
+            print ("    Testing point",point,"and line",line)
             if ray.intersectsWith(line):
                 intersectionCount += 1
                 print ("        Intersection count", intersectionCount)

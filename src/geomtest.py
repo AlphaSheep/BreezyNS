@@ -61,30 +61,6 @@ def testLoadandPlot():
     return polygonList[0]
         
 
-
-def testPolyPointCheck():
-    polygons = polygonsFromSVG('./inputgeometries/arbshape7.svg')
-    polygon = polygons[0].removeShortLines(0.5).toPolygon()
-    print ("Polygon loaded with",len(polygon.lines),"sides.")
-    
-    
-    plist = []
-    plist.append(Point(250,210)) # True
-    plist.append(Point(140, 150)) # False
-    plist.append(Point(280, 320)) # False 
-    plist.append(Point(95, 260)) # True
-    plist.append(Point(180, 60)) # False
-
-    pylab.figure('Polygon Image')
-    plotPolygonGroup([polygon])
-    
-    for p in plist:   
-        print (p, polygon.containsPoint(p))
-        pylab.plot(p.x,p.y,'ro')
-    
-    pylab.show()
-
-
 def boundingBoxCheck():
     plist = []
     plist.append(Point(250,580))
@@ -101,6 +77,33 @@ def boundingBoxCheck():
     print( line1.intersectsWith(line2))
     
     
+
+def testPolyPointCheck():
+    polygons = polygonsFromSVG('./inputgeometries/arbshape7.svg', 0.5)
+    polygon = polygons[0].toPolygon()
+    print ("Polygon loaded with",len(polygon.lines),"sides.")
+    
+    
+    plist = []
+    plist.append(Point(250,210)) # True
+    plist.append(Point(140, 150)) # False
+    plist.append(Point(280, 320)) # False 
+    plist.append(Point(95, 260)) # True
+    plist.append(Point(180, 60)) # False
+
+    pylab.figure('Polygon Image')
+    
+    for p in plist:   
+        print (p, polygon.containsPoint(p))
+        plotPolygonGroup([polygon])
+        pylab.plot(p.x,p.y,'ro')
+        pylab.show()
+        
+    for line in polygon.lines:
+        print(line)
+    
+
+
 
 if __name__ == "__main__":
     #boundingBoxCheck()
