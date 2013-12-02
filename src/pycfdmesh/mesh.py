@@ -36,7 +36,7 @@ class Element():
     
     def __init__(self, center, cellSize, maxCellSize, minCellSize, parent = None):
         self.isLeaf = True
-        self.isSolid = False
+        self.isSolid = None
         self.isBoundary = False
         self.Boundary = None
         
@@ -54,6 +54,10 @@ class Element():
         self.neighbours = {'up':None, 'down':None, 'left':None, 'right':None}
         
         #print("    Created new element at",center,"with size",cellSize)
+    
+    
+    def getBoundingBox(self):
+        return self.boundingBox 
     
     def getNeighbour(self, direction):
         '''
@@ -86,6 +90,20 @@ class Element():
             return self.neighbours[direction]
         
         
+    def getAllElements(self):
+        '''
+        Returns a list of all leaf elements within the current element.
+        '''
+        if self.isLeaf:
+            if self.isSolid:
+                return []
+            return [self]
+        else:
+            elementList = []
+            for c in self.children:
+                elementList += c.getAllElements()
+            return elementList
+            
     
     def getElementAtPoint(self, point):
         '''
@@ -97,6 +115,8 @@ class Element():
             return self.parent.getElementAtPoint(point)
             
         if self.isLeaf:
+            if self.isSolid:
+                return None
             return self
         else:
             for child in self.children:
@@ -112,6 +132,8 @@ class Element():
         returns a list of points for all of its children.
         '''
         if self.isLeaf:
+            if self.isSolid:
+                return PointList()
             return self.boundingBox.getPointList()
         else:
             pointList = PointList()
@@ -125,6 +147,8 @@ class Element():
         Returns a list of Polygon objects defining each leaf element.
         '''
         if self.isLeaf:
+            if self.isSolid:
+                return []
             return [self.boundingBox.getPolygon()]
         else:
             polyList = []
@@ -177,7 +201,17 @@ class Element():
                     
                     
     def __repr__(self):
-        return "Element at "+str(self.center)+" with size "+str(self.cellSize)
+        if self.isSolid: 
+            solid = "Solid. " 
+        else:
+            solid = ""
+        if self.isBoundary:
+            boundary = " Boundary. "
+        else:
+            boundary = ""
+        
+         
+        return "Element at "+str(self.center)+" with size "+str(self.cellSize)+". "+solid+boundary
     
     
     
@@ -279,19 +313,40 @@ class Mesh():
             thisPoint = line.startPoint + (line.endPoint-line.startPoint).scaledBy(i/nSteps)
             
             e = self.getElementAtPoint(thisPoint)
-            while e.cellSize/2 > e.minCellSize:
+            while e and e.cellSize/2 > e.minCellSize:
                 for element in self.getElementsAroundPoint(thisPoint):
                     element.split()                    
                 e = self.getElementAtPoint(thisPoint)
     
     
     def refineAlongPolygon(self, polygon):
-        #counter = 0
+        counter = 0
         for line in polygon.lines:
-            #counter += 1
-            #print("    Resolving along",line)
+            counter += 1
+            # print("    Resolving along line",counter,":", line)
             self.refineAlongLine(line)
-                
+            # print("      Detecting solid cells")
+            self.markSolidCells(polygon)
+    
+    
+    def getAllElements(self):
+        elementList = []
+        for e in self.elements:
+            elementList += e.getAllElements()
+        return elementList
+    
+
+            
+    def markSolidCells(self, polygon):
+        '''
+        Marks all elements in polygon as solid.
+        '''
+        for e in self.getAllElements():
+            if e.isSolid==None and polygon.containsBoundingBox(e.getBoundingBox()):
+                e.isSolid = True
+            else:
+                e.isSolid = False
+            
 
     
    

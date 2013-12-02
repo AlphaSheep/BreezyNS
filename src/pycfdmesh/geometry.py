@@ -99,6 +99,7 @@ class BoundingBox():
     def getPolygon(self):
         p = Polygon()
         p.createFromPointList(self.getPointList())
+        print("Creating from point list:",p)
         return p
     
     def __add__(self, other):
@@ -462,6 +463,7 @@ class LineList():
         if pointList.length()<2:
             return
         
+        
         points = pointList.points
         for i in range(1,len(points)):
             self.lines.append(StraightLine(points[i-1], points[i]))
@@ -503,7 +505,12 @@ class Polygon(LineList):
     def calculateBoundingBox(self):
         '''
         This forces the bounding box to be recalculated. If the polygon hasn't changed, rather use Polygon.getBoundingBox()
-        ''' 
+        '''
+        if len(self.lines) == 0:
+            self.boundingBox = None
+            return None 
+        
+        
         xmin = self.lines[0].startPoint.x
         xmax = self.lines[0].startPoint.x
         ymin = self.lines[0].startPoint.y
@@ -544,18 +551,32 @@ class Polygon(LineList):
         
         intersectionCount = 0
         for line in self.lines:
-            print ("    Testing point",point,"and line",line)
+            # print ("    Testing point",point,"and line",line)
             if ray.intersectsWith(line):
                 intersectionCount += 1
-                print ("        Intersection count", intersectionCount)
+                # print ("        Intersection count", intersectionCount)
         if intersectionCount % 2 == 1:
             return True
         else:
             return False
             
+            
+    def containsBoundingBox(self, boundingBox):
+        '''
+        Returns true if all four corners of the boundingBox are contained inside the polygon.
+        '''
+        for point in boundingBox.getPointList().points:
+            if not self.containsPoint(point):
+                return False
+        return True
         
         
         
+    def __repr__(self):
+        s = "Polygon with "+str(len(self.lines))+" sides:"
+        for line in self.lines:
+            s += "\n    "+str(line)
+        return s
         
         
             

@@ -48,7 +48,7 @@ def removeDuplicates(l):
     '''
     newList = []
     for element in l:
-        if not element in newList:
+        if element and not element in newList:
             newList.append(element)
     return newList 
 

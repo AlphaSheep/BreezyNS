@@ -20,7 +20,7 @@ Created on 27 Nov 2013
 '''
 
 import pylab
-import math
+# import math
 from geomtest import plotPolygonGroup
 from pycfdmesh.mesh import Mesh
 from pycfdmesh.geometry import Point
@@ -80,16 +80,16 @@ def testMeshRefinement():
 
 
 def testPloygonTracer():
-    minCellSize = 0.5
-    polygons = polygonsFromSVG('./inputgeometries/arbshape6.svg')
-    polygon = polygons[0].removeShortLines(minCellSize)
+    minCellSize = 5
+    polygon = polygonsFromSVG('./inputgeometries/arbshape6.svg', minCellSize)[0]
     print("Loaded geometry as polygon with",len(polygon.lines),"sides.")
     bottomLeft = Point(0, 300)
     mesh = Mesh(bottomLeft, 10, 10, 100, minCellSize)
     print("Generated coarse background mesh.")
-    
     mesh.refineAlongPolygon(polygon)
     print("Mesh refined around geometry.")
+    mesh.markSolidCells(polygon)
+    print("Solid cells identified.")
     
     
     pylab.figure()
@@ -97,12 +97,16 @@ def testPloygonTracer():
     print("Plotting mesh...")
     plotMesh(mesh)
     print("Plotting geometry...")
-    plotPolygonGroup(polygons,'r-')
+    plotPolygonGroup([polygon],'r-')
 
     pylab.axis('equal')
     pylab.show()
     
-    
+
+
+
+
+
 
 if __name__ == "__main__":    
     #testMeshRefinement()
